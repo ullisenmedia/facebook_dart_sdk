@@ -103,9 +103,12 @@ class FacebookRequest {
 
   }
 
-  Future<StreamedResponse> execute() {
+  Future<Response> execute() {
 
-    var future;
+    var completer = new Completer();
+
+    Future<Response> requestFuture;
+
     var queryParams = null;
     var body = null;
 
@@ -122,23 +125,45 @@ class FacebookRequest {
     switch (this._httpMethod) {
 
       case HttpMethod.POST:
-        future = FacebookRequest.client.post(url, headers:_headers, body:body);
+        requestFuture = FacebookRequest.client.post(url, headers:_headers, body:body);
         break;
 
       case HttpMethod.DELETE:
-        future = FacebookRequest.client.delete(url, headers:body);
+        requestFuture = FacebookRequest.client.delete(url, headers:body);
         break;
 
       case HttpMethod.PUT:
-        future = FacebookRequest.client.put(url, headers:_headers, body:body);
+        requestFuture = FacebookRequest.client.put(url, headers:_headers, body:body);
         break;
 
       default:
-        future = FacebookRequest.client.get(url);
+        requestFuture = FacebookRequest.client.get(url);
         break;
       }
 
-      return future;
+    requestFuture
+      .then((Response response) {
+
+        var result = this.processResponse(response);
+
+        if(result is FacebookError) {
+
+          completer.completeError(result);
+
+        } else {
+
+          completer.complete(result);
+        }
+
+      })
+
+      .catchError((error) {
+
+        completer.completeError(error);
+
+      });
+
+      return completer.future;
 
     }
 
@@ -213,7 +238,7 @@ class FacebookRequest {
     return completer.future;
   }
 
-  static Future<Response> newGraphPathRequest(FacebookSession session, String graphPath) {
+  static Future<GraphObject> newGraphPathRequest(FacebookSession session, String graphPath) {
 
     var completer = new Completer();
 
@@ -233,6 +258,29 @@ class FacebookRequest {
       });
 
     return completer.future;
+  }
+
+  dynamic processResponse(Response response) {
+
+    var result = null;
+
+    if(response.body) {
+
+      Map<String, dynamic> data = JSON.decode(response.body);
+
+      if(data.containsKey('error')) {
+
+        var error = data['error'];
+
+        result = new FacebookError(error);
+
+      } else {
+
+        result = new GraphObject(data);
+      }
+    }
+
+    return result;
   }
 
   Uri getRequestURL({Map<String, String> params: null}) {

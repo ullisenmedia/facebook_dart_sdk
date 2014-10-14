@@ -20,5 +20,6 @@ part 'src/graph_location.dart';
 part 'src/graph_place.dart';
 part 'src/graph_object_list.dart';
 part 'src/core/http_method.dart';
+part 'src/facebook_error.dart';
 part 'src/facebook_session.dart';
 part 'src/facebook_request.dart';
