@@ -5,6 +5,8 @@ import 'package:intl/intl_browser.dart';
 import 'package:unittest/unittest.dart';
 import 'package:unittest/html_config.dart';
 import '../lib/facebook.dart';
+import 'my_graph_user.dart';
+import 'my_graph_language.dart';
 
 void main() {
 
@@ -14,35 +16,42 @@ void main() {
 
   test('test graph object', () {
 
-    Map<string , dynamic> map = new Map();
+    dynamic data = JSON.decode(json);
 
-    JSON.decode(json, reviver: (key, value) {
-
-      map[key] = value;
-    });
+    Map<String , dynamic> map = new Map.from(data);
 
     GraphObject graphObject = new GraphObject(map);
 
     expect(graphObject.getProperty('name'), map['name']);
     expect(graphObject.getProperty('languages'), map['languages']);
     expect(graphObject.getProperty('birthday', type: DateTime), new DateFormat.yMd('en_US').parse(map['birthday']));
+
   });
 
   test('test graph user object', () {
 
-    Map<string , dynamic> map = new Map();
+    dynamic data = JSON.decode(json);
 
-    JSON.decode(json, reviver: (key, value) {
-
-      map[key] = value;
-    });
+    Map<String , dynamic> map = new Map.from(data);
 
     GraphObject graphObject = new GraphObject(map);
     GraphUser graphUser = graphObject.cast(GraphUser);
 
     expect(graphUser.name, map['name']);
-    expect(graphUser.birthday, new DateFormat.yMd('en_US').parse(map['birthday']));
+    expect(graphUser.location is GraphPlace, true);
 
   });
 
+  test('test graph object list', () {
+
+    dynamic data = JSON.decode(json);
+
+    Map<String , dynamic> map = new Map.from(data);
+
+    GraphObject graphObject = new GraphObject(map);
+    MyGraphUser graphUser = graphObject.cast(MyGraphUser);
+
+    expect(graphUser.languages.first.name, 'French');
+
+  });
 }

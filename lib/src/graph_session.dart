@@ -1,6 +1,6 @@
 part of facebook;
 
-abstract class GraphSession {
+class GraphSession {
   String appId;
   String appSecret;
 }

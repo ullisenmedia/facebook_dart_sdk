@@ -2,7 +2,7 @@ part of facebook;
 
 class FacebookSession {
 
-  static final GraphSession _activeSession;
+  static final GraphSession _activeSession = new GraphSession();
 
   final String _accessToken;
 
@@ -10,9 +10,8 @@ class FacebookSession {
 
   static setDefaultApplication(String appId, String appSecret) {
 
-    _activeSession = new GraphSession();
     _activeSession.appId = appId;
-    _activeSession.appSecret = _appSecret;
+    _activeSession.appSecret = appSecret;
   }
 
   get accessToken => _accessToken;
